@@ -9,7 +9,7 @@ AddDataRouter.use(cors());
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy"; // GitHub username
-const REPO = "ChobegraphyApp"; // Repository name
+const REPO = "ChobegraphyPictureApi"; //Picture APi Repository name
 const FILE_PATH = "PictureApi.json"; // Path to the file in the repo
 
 // POST route to add data

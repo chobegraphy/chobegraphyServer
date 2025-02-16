@@ -5,6 +5,8 @@ const createRepoSizeRoutes = require("./repoSize"); // Import repoSize API
 const UserDataRouter = require("./UserDataRouter");
 
 const addDataRoutes = require("./createUploaderRoutes"); // Import the addData routes
+
+const MostViewedAndLovedPicture = require("./MostViewedAndLovedPicture");
 require("dotenv").config();
 
 const app = express();
@@ -17,7 +19,9 @@ app.use(cors());
 // Environment variables
 const githubToken = process.env.GITHUB_TOKEN;
 const repoOwner = process.env.REPO_OWNER;
-const PhotoUploadRepoName = process.env.PHOTO_UPLOAD_REPO_NAME;
+
+// picture storage repo name
+const PhotoUploadRepoName = "PictureStorage-1";
 
 // Routes
 app.get("/", (req, res) => {
@@ -37,7 +41,14 @@ const repoSizeRoutes = createRepoSizeRoutes({
   PhotoUploadRepoName,
 });
 
-app.use("/api", uploaderRoutes, repoSizeRoutes, addDataRoutes, UserDataRouter);
+app.use(
+  "/api",
+  uploaderRoutes,
+  repoSizeRoutes,
+  addDataRoutes,
+  UserDataRouter,
+  MostViewedAndLovedPicture
+);
 
 // Start the server
 app.listen(port, () => {
