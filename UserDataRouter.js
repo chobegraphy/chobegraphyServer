@@ -1,15 +1,17 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const jwt = require("jsonwebtoken"); // Import JWT
 require("dotenv").config();
 
 const UserDataRouter = express.Router();
 UserDataRouter.use(cors());
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const OWNER = "chobegraphy"; // GitHub username
-const REPO = "ChobegraphyUser"; // Private repository name
-const FILE_PATH = "UserData.json"; // JSON file path in repo
+const OWNER = "chobegraphy";
+const REPO = "ChobegraphyUser";
+const FILE_PATH = "UserData.json";
+const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key"; // Secret key for signing JWT
 
 // Function to generate a MongoDB-like 24-character hex ID
 const generateMongoLikeId = () => {
@@ -18,7 +20,27 @@ const generateMongoLikeId = () => {
     .join("");
 };
 
-// POST route to add user data
+// Function to generate a JWT token
+const generateToken = (user) => {
+  return jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, {
+    expiresIn: "7d", // Token expires in 7 days
+  });
+};
+
+// Middleware to verify JWT
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1]; // Extract token from headers
+  if (!token)
+    return res.status(401).json({ error: "Unauthorized - No token provided" });
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(403).json({ error: "Invalid token" });
+    req.user = decoded; // Store decoded user info in request
+    next();
+  });
+};
+
+// POST route to add user data and return a JWT token
 UserDataRouter.post("/add-user", async (req, res) => {
   const newUser = req.body;
 
@@ -37,7 +59,7 @@ UserDataRouter.post("/add-user", async (req, res) => {
     ).toString("utf8");
     const userData = JSON.parse(fileContent);
 
-    // Check if user with the same email already exists
+    // Check if user already exists
     const existingUser = userData.find((user) => user.email === newUser.email);
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -60,22 +82,29 @@ UserDataRouter.post("/add-user", async (req, res) => {
       {
         message: "Added new user to UserData.json",
         content: updatedContent,
-        sha: getFileResponse.data.sha, // Required for updates
+        sha: getFileResponse.data.sha,
       },
       {
         headers: { Authorization: `token ${GITHUB_TOKEN}` },
       }
     );
 
-    res.status(200).json({ message: "User added successfully", data: newUser });
+    // Generate JWT token
+    const token = generateToken(newUser);
+
+    res.status(200).json({
+      message: "User added successfully",
+      data: newUser,
+      token, // Send JWT token to frontend
+    });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
     res.status(500).json({ error: "Failed to update user data" });
   }
 });
 
-// GET route to fetch all users
-UserDataRouter.get("/get-users", async (req, res) => {
+// GET route to fetch all users (protected route)
+UserDataRouter.get("/get-users", verifyToken, async (req, res) => {
   try {
     const getFileResponse = await axios.get(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
