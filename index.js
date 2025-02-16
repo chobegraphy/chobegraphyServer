@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const createUploaderRoutes = require("./postPhotoToRepo"); // Import the uploader routes
 const createRepoSizeRoutes = require("./repoSize"); // Import repoSize API
+const UserDataRouter = require("./UserDataRouter");
 
 const addDataRoutes = require("./createUploaderRoutes"); // Import the addData routes
 require("dotenv").config();
@@ -36,7 +37,7 @@ const repoSizeRoutes = createRepoSizeRoutes({
   PhotoUploadRepoName,
 });
 
-app.use("/api", uploaderRoutes, repoSizeRoutes, addDataRoutes);
+app.use("/api", uploaderRoutes, repoSizeRoutes, addDataRoutes, UserDataRouter);
 
 // Start the server
 app.listen(port, () => {
