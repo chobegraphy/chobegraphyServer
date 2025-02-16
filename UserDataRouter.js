@@ -11,7 +11,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy";
 const REPO = "ChobegraphyUser";
 const FILE_PATH = "UserData.json";
-const JWT_SECRET = process.env.JWT_SECRET || "your_secret_key"; // Secret key for signing JWT
+const JWT_SECRET = process.env.DB_KEY || "your_secret_key"; // Secret key for signing JWT
 
 // Function to generate a MongoDB-like 24-character hex ID
 const generateMongoLikeId = () => {
@@ -20,30 +20,32 @@ const generateMongoLikeId = () => {
     .join("");
 };
 
-// Function to generate a JWT token
-const generateToken = (user) => {
-  return jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, {
-    expiresIn: "7d", // Token expires in 7 days
-  });
-};
-
 // Middleware to verify JWT
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1]; // Extract token from headers
-  if (!token)
-    return res.status(401).json({ error: "Unauthorized - No token provided" });
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res
+      .status(401)
+      .send({ error: true, message: "Unauthorized access" });
+  }
 
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ error: "Invalid token" });
-    req.user = decoded; // Store decoded user info in request
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, JWT_SECRET, (error, decoded) => {
+    if (error) {
+      return res
+        .status(401)
+        .send({ error: true, message: "Unauthorized access" });
+    }
+    req.decoded = decoded;
     next();
   });
 };
 
-// POST route to add user data and return a JWT token
+// POST route to add user data (No JWT token generation here)
 UserDataRouter.post("/add-user", async (req, res) => {
   const newUser = req.body;
   console.log(newUser);
+
   try {
     // Fetch existing users
     const getFileResponse = await axios.get(
@@ -89,13 +91,9 @@ UserDataRouter.post("/add-user", async (req, res) => {
       }
     );
 
-    // Generate JWT token
-    const token = generateToken(newUser);
-
     res.status(200).json({
       message: "User added successfully",
       data: newUser,
-      token, // Send JWT token to frontend
     });
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
@@ -126,9 +124,9 @@ UserDataRouter.get("/get-users", verifyToken, async (req, res) => {
   }
 });
 
-// get single user
+// GET single user
 UserDataRouter.get("/get-user", verifyToken, async (req, res) => {
-  const email = req.query.email; // Get email from query params
+  const email = req.query.email;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
   }
@@ -157,6 +155,20 @@ UserDataRouter.get("/get-user", verifyToken, async (req, res) => {
     console.error("Error fetching user data:", error);
     res.status(500).json({ error: "Failed to fetch user data" });
   }
+});
+
+UserDataRouter.post("/jwt", (req, res) => {
+  console.log(req.body);
+  const user = req.body;
+  if (!user.email) {
+    return res.status(400).send({ message: "Email is required" });
+  }
+
+  // Generate a token without expiration
+  const token = jwt.sign(user, JWT_SECRET);
+
+  console.log(token);
+  res.status(200).send(token);
 });
 
 module.exports = UserDataRouter;
