@@ -9,7 +9,7 @@ MostViewedAndLovedPicture.use(cors());
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy";
 const REPO = "ChobegraphyPictureApi";
-const FILE_PATH = "pictures.json"; // Adjust the file path as needed
+const FILE_PATH = "PictureApi.json"; // Adjust the file path as needed
 
 // GET route to fetch the top 19 pictures based on views, downloads, and reactions
 MostViewedAndLovedPicture.get("/top-pictures", async (req, res) => {
