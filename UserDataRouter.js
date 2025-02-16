@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-const { ObjectId } = require("mongodb"); // MongoDB-style ID
 require("dotenv").config();
 
 const UserDataRouter = express.Router();
@@ -11,6 +10,13 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy"; // GitHub username
 const REPO = "ChobegraphyUser"; // Private repository name
 const FILE_PATH = "UserData.json"; // JSON file path in repo
+
+// Function to generate a MongoDB-like 24-character hex ID
+const generateMongoLikeId = () => {
+  return [...Array(24)]
+    .map(() => Math.floor(Math.random() * 16).toString(16))
+    .join("");
+};
 
 // POST route to add user data
 UserDataRouter.post("/add-user", async (req, res) => {
@@ -37,8 +43,8 @@ UserDataRouter.post("/add-user", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Assign MongoDB-like ObjectId
-    newUser._id = new ObjectId().toString();
+    // Assign a MongoDB-like ID
+    newUser._id = generateMongoLikeId();
 
     // Add new user
     userData.unshift(newUser);
