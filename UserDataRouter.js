@@ -43,7 +43,7 @@ const verifyToken = (req, res, next) => {
 // POST route to add user data and return a JWT token
 UserDataRouter.post("/add-user", async (req, res) => {
   const newUser = req.body;
-
+  console.log(newUser);
   try {
     // Fetch existing users
     const getFileResponse = await axios.get(
@@ -122,6 +122,39 @@ UserDataRouter.get("/get-users", verifyToken, async (req, res) => {
     res.status(200).json(userData);
   } catch (error) {
     console.error("Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to fetch user data" });
+  }
+});
+
+// get single user
+UserDataRouter.get("/get-user", verifyToken, async (req, res) => {
+  const email = req.query.email; // Get email from query params
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const getFileResponse = await axios.get(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
+      {
+        headers: { Authorization: `token ${GITHUB_TOKEN}` },
+      }
+    );
+
+    const fileContent = Buffer.from(
+      getFileResponse.data.content,
+      "base64"
+    ).toString("utf8");
+    const userData = JSON.parse(fileContent);
+
+    const user = userData.find((u) => u.email === email);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user data:", error);
     res.status(500).json({ error: "Failed to fetch user data" });
   }
 });
