@@ -9,6 +9,8 @@ const addDataRoutes = require("./createUploaderRoutes"); // Import the addData r
 const MostViewedAndLovedPicture = require("./MostViewedAndLovedPicture");
 require("dotenv").config();
 
+const SinglePictureImgDetails = require("./GetSingleImgData");
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -47,7 +49,8 @@ app.use(
   repoSizeRoutes,
   addDataRoutes,
   UserDataRouter,
-  MostViewedAndLovedPicture
+  MostViewedAndLovedPicture,
+  SinglePictureImgDetails
 );
 
 // Start the server

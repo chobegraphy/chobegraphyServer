@@ -12,7 +12,7 @@ const REPO = "ChobegraphyPictureApi";
 const FILE_PATH = "PictureApi.json";
 
 // GET route to fetch a single picture by _id
-SinglePicture.get("/picture/:id", async (req, res) => {
+SinglePicture.get("/SinglePictureDetails/:id", async (req, res) => {
   try {
     const pictureId = req.params.id;
 
