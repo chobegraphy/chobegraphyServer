@@ -49,6 +49,11 @@ Suggestions.get("/suggestions", async (req, res) => {
       .slice(0, 10)
       .map(({ _id, ...rest }) => rest); // Exclude _id from the response
 
+    // Check if no suggestions were found
+    if (suggestions.length === 0) {
+      return res.status(404).json({ message: "No data available" }); // Send 'No data available' if no suggestions match
+    }
+
     res.status(200).json(suggestions); // Send the suggestions
   } catch (error) {
     console.error(
