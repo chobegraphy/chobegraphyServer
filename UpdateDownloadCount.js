@@ -57,9 +57,11 @@ UpdateDownload.post("/IncreaseDownload/:id", async (req, res) => {
       }
     );
 
-    res
-      .status(200)
-      .json({ success: true, message: "Download count updated successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Download count updated successfully",
+      updatedData: pictureData[pictureIndex],
+    });
   } catch (error) {
     console.error(
       "Error updating download count:",
