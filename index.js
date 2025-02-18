@@ -11,6 +11,8 @@ const SinglePictureImgDetails = require("./GetSingleImgData");
 const Suggestions = require("./Suggestions");
 require("dotenv").config();
 const UpdateView = require("./UpdateViewCount");
+const UpdateDownload = require("./UpdateDownloadCount");
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -52,7 +54,8 @@ app.use(
   MostViewedAndLovedPicture,
   SinglePictureImgDetails,
   Suggestions,
-  UpdateView
+  UpdateView,
+  UpdateDownload
 );
 
 // Start the server
