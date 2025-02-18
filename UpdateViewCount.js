@@ -57,9 +57,11 @@ UpdateView.post("/IncreaseView/:id", async (req, res) => {
       }
     );
 
-    res
-      .status(200)
-      .json({ success: true, message: "View count updated successfully" });
+    res.status(200).json({
+      success: true,
+      message: "View count updated successfully",
+      updatedData: pictureData[pictureIndex], // Send updated picture data
+    });
   } catch (error) {
     console.error(
       "Error updating view count:",
