@@ -12,6 +12,7 @@ const Suggestions = require("./Suggestions");
 require("dotenv").config();
 const UpdateView = require("./UpdateViewCount");
 const UpdateDownload = require("./UpdateDownloadCount");
+const PictureLike = require("./PictureLikeGetDelete");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -48,7 +49,8 @@ app.use(
   SinglePictureImgDetails,
   Suggestions,
   UpdateView,
-  UpdateDownload
+  UpdateDownload,
+  PictureLike
 );
 
 // Start the server
