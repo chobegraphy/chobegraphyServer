@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const createUploaderRoutes = require("./postPhotoToRepo"); // Import the uploader routes
+const createUploaderRoutes = require("./UploadPhotoToRepo"); // Import the uploader routes
 const createRepoSizeRoutes = require("./repoSize"); // Import repoSize API
 const UserDataRouter = require("./UserDataRouter");
 
@@ -32,13 +32,6 @@ app.get("/", (req, res) => {
   res.send("Chobegraphy is running");
 });
 
-// Add GitHub uploader routes
-const uploaderRoutes = createUploaderRoutes({
-  githubToken,
-  repoOwner,
-  PhotoUploadRepoName,
-});
-
 const repoSizeRoutes = createRepoSizeRoutes({
   githubToken,
   repoOwner,
@@ -47,7 +40,7 @@ const repoSizeRoutes = createRepoSizeRoutes({
 
 app.use(
   "/api",
-  uploaderRoutes,
+  createUploaderRoutes,
   repoSizeRoutes,
   addDataRoutes,
   UserDataRouter,
