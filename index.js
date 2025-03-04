@@ -14,6 +14,7 @@ const UpdateView = require("./UpdateViewCount");
 const UpdateDownload = require("./UpdateDownloadCount");
 const PictureLike = require("./PictureLikeGetDelete");
 const IncreaseReduceLike = require("./IncreaseReduceLike");
+const EncodedImgUploaderRoutes = require("./EncodedPhotoToRepo");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -51,7 +52,8 @@ app.use(
   UpdateView,
   UpdateDownload,
   PictureLike,
-  IncreaseReduceLike
+  IncreaseReduceLike,
+  EncodedImgUploaderRoutes
 );
 
 // Start the server
