@@ -55,7 +55,7 @@ const createNewRepo = async () => {
   return newRepoName;
 };
 
-EncodedImgUploaderRoutes.post("/upload", async (req, res) => {
+EncodedImgUploaderRoutes.post("/uploadEncodedPhoto", async (req, res) => {
   const { photo, filename } = req.body;
 
   if (!photo || !filename) {
