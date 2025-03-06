@@ -48,7 +48,7 @@ const createNewRepo = async () => {
   // Create the private repository
   await axios.post(
     "https://api.github.com/user/repos",
-    { name: newRepoName, private: true },
+    { name: newRepoName, private: false },
     { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
   );
 
@@ -56,7 +56,8 @@ const createNewRepo = async () => {
 };
 
 UserImgUploaderRoutes.post("/uploadUserPhoto", async (req, res) => {
-  const { photo } = req.body;
+  const { photo, filename } = req.body;
+  console.log(req.body);
   // Convert base64 size to bytes
   const fileSizeInBytes = Buffer.byteLength(photo, "base64");
   const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
@@ -65,7 +66,7 @@ UserImgUploaderRoutes.post("/uploadUserPhoto", async (req, res) => {
     return res.status(400).send("File size exceeds 30MB limit");
   }
 
-  let currentRepo = initialRepoName;
+  let currentRepo = BASE_REPO_NAME;
   let repoSize = await getRepoSize(currentRepo);
 
   // If repo exceeds 4.5GB, create a new one
