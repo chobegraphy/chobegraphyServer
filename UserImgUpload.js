@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
+const fs = require("fs");
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy";
@@ -123,4 +124,76 @@ UserImgUploaderRoutes.post("/uploadUserPhoto", async (req, res) => {
   }
 });
 
+UserImgUploaderRoutes.post("/uploadImgByImgBB", async (req, res) => {
+  const { imgUrl, filename } = req.body;
+  console.log(imgUrl);
+  if (!imgUrl) {
+    return res.status(400).send({ message: "Image URL is required" });
+  }
+
+  try {
+    // Extract filename from URL
+
+    const tempFilePath = `./temp/${filename}`;
+
+    // Download the image
+    const response = await axios({ url: imgUrl, responseType: "arraybuffer" });
+    fs.writeFileSync(tempFilePath, response.data);
+
+    // Convert image to Base64
+    const content = fs.readFileSync(tempFilePath).toString("base64");
+
+    // Check and get current repo
+    let currentRepo = BASE_REPO_NAME;
+    let repoSize = await getRepoSize(currentRepo);
+    if (repoSize && repoSize >= 4500) {
+      currentRepo = await createNewRepo();
+    }
+
+    // Check if file already exists on GitHub
+    const uploadUrl = `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${filename}`;
+    const fileExists = await axios
+      .get(uploadUrl, { headers: { Authorization: `token ${GITHUB_TOKEN}` } })
+      .then(() => true)
+      .catch((err) => {
+        if (err.response?.status === 404) return false;
+        throw err;
+      });
+
+    let finalFilename = filename;
+    if (fileExists) {
+      const fileExtension = filename.split(".").pop();
+      const baseName = filename.replace(`.${fileExtension}`, "");
+      finalFilename = `${baseName}-${Date.now()}.${fileExtension}`;
+    }
+
+    // Upload the file to GitHub
+    const data = { message: `Add ${finalFilename}`, content: content };
+    await axios.put(
+      `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${finalFilename}`,
+      data,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Clean up temp file
+    fs.unlinkSync(tempFilePath);
+
+    const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
+    res.status(200).send({ imageUrl, filename: finalFilename });
+  } catch (error) {
+    console.error(
+      "Error processing image:",
+      error.response?.data || error.message
+    );
+    res.status(500).send({
+      message: "Internal server error",
+      error: error.response?.data || error.message,
+    });
+  }
+});
 module.exports = UserImgUploaderRoutes;
