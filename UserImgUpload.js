@@ -182,7 +182,6 @@ UserImgUploaderRoutes.post("/uploadImgByImgBB", async (req, res) => {
 
     // Clean up temp file
     fs.unlinkSync(tempFilePath);
-
     const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
     res.status(200).send({ imageUrl, filename: finalFilename });
   } catch (error) {
