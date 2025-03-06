@@ -1,6 +1,9 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const multer = require("multer");
+const sharp = require("sharp");
+const fs = require("fs");
 require("dotenv").config();
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -9,6 +12,9 @@ const BASE_REPO_NAME = "UserImgStorage";
 
 const UserImgUploaderRoutes = express.Router();
 UserImgUploaderRoutes.use(cors());
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 // Function to get repository size
 const getRepoSize = async (repoName) => {
@@ -55,72 +61,77 @@ const createNewRepo = async () => {
   return newRepoName;
 };
 
-UserImgUploaderRoutes.post("/uploadUserPhoto", async (req, res) => {
-  const { photo, filename } = req.body;
-
-  if (!photo || !filename) {
-    return res.status(400).json({ message: "Photo and filename are required" });
-  }
-
-  // Convert Base64 size to bytes
-  const fileSizeInBytes = Buffer.byteLength(photo, "base64");
-  const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-
-  if (fileSizeInMB > 30) {
-    return res.status(400).json({ message: "File size exceeds 30MB limit" });
-  }
-
-  let currentRepo = BASE_REPO_NAME + "-1"; // Start with EncodedStorage-1
-  let repoSize = await getRepoSize(currentRepo);
-
-  // If repo size exceeds 4.5GB, create a new one
-  if (repoSize && repoSize >= 4500) {
-    currentRepo = await createNewRepo();
-  }
-
-  const content = Buffer.from(photo, "base64").toString("base64");
-  const url = `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${filename}`;
-
-  try {
-    // Check if file exists
-    const fileExists = await axios
-      .get(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } })
-      .then(() => true)
-      .catch((err) => {
-        if (err.response?.status === 404) return false;
-        throw err;
-      });
-
-    let finalFilename = filename;
-    if (fileExists) {
-      const fileExtension = filename.split(".").pop();
-      const baseName = filename.replace(`.${fileExtension}`, "");
-      finalFilename = `${baseName}-${Date.now()}.${fileExtension}`;
+// Route to handle image uploads
+UserImgUploaderRoutes.post(
+  "/uploadUserPhoto",
+  upload.single("photo"),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Upload file
-    const uploadUrl = `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${finalFilename}`;
-    const data = {
-      message: `Add ${finalFilename}`,
-      content: content,
-    };
+    const { originalname, buffer } = req.file;
 
-    await axios.put(uploadUrl, data, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      // Compress image using sharp (reduce size)
+      const compressedBuffer = await sharp(buffer)
+        .resize(1024) // Resize width to max 1024px (adjust as needed)
+        .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+        .toBuffer();
 
-    const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
-    res.status(200).json({ imageUrl });
-  } catch (error) {
-    console.error(
-      "Error uploading file:",
-      error.response?.data || error.message
-    );
-    res.status(500).json({ message: "Internal server error" });
+      // Convert compressed image to Base64
+      const content = compressedBuffer.toString("base64");
+
+      // Check if repo size is over limit (4.5GB), create new repo if needed
+      let currentRepo = `${BASE_REPO_NAME}-1`;
+      let repoSize = await getRepoSize(currentRepo);
+      if (repoSize && repoSize >= 4500) {
+        currentRepo = await createNewRepo();
+      }
+
+      const url = `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${originalname}`;
+
+      // Check if file exists, append timestamp if needed
+      const fileExists = await axios
+        .get(url, { headers: { Authorization: `token ${GITHUB_TOKEN}` } })
+        .then(() => true)
+        .catch((err) => {
+          if (err.response?.status === 404) return false;
+          throw err;
+        });
+
+      let finalFilename = originalname;
+      if (fileExists) {
+        const fileExtension = originalname.split(".").pop();
+        const baseName = originalname.replace(`.${fileExtension}`, "");
+        finalFilename = `${baseName}-${Date.now()}.${fileExtension}`;
+      }
+
+      // Upload file to GitHub
+      const uploadUrl = `https://api.github.com/repos/${OWNER}/${currentRepo}/contents/${finalFilename}`;
+      const data = {
+        message: `Add ${finalFilename}`,
+        content: content,
+      };
+
+      await axios.put(uploadUrl, data, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Construct image URL
+      const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
+      res.status(200).json({ imageUrl });
+    } catch (error) {
+      console.error(
+        "Error uploading file:",
+        error.response?.data || error.message
+      );
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-});
+);
 
 module.exports = UserImgUploaderRoutes;
