@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
   "dependencies": {
     "@octokit/rest": "^21.1.0",
     "axios": "^1.7.9",
