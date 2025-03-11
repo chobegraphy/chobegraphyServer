@@ -15,6 +15,7 @@ require("dotenv").config();
 const UpdateView = require("./UpdateViewCount");
 const UpdateDownload = require("./UpdateDownloadCount");
 const PictureLike = require("./PictureLikeGetDelete");
+const UploadMainPicture = require("./UploadMainPicture");
 const IncreaseReduceLike = require("./IncreaseReduceLike");
 const EncodedImgUploaderRoutes = require("./EncodedPhotoToRepo");
 const UserImgUploaderRoutes = require("./UserImgUpload");
@@ -47,6 +48,7 @@ const repoSizeRoutes = createRepoSizeRoutes({
 
 app.use(
   "/api",
+  UploadMainPicture,
   createUploaderRoutes,
   repoSizeRoutes,
   addDataRoutes,
