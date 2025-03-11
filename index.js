@@ -15,10 +15,12 @@ require("dotenv").config();
 const UpdateView = require("./UpdateViewCount");
 const UpdateDownload = require("./UpdateDownloadCount");
 const PictureLike = require("./PictureLikeGetDelete");
-const UploadMainPicture = require("./UploadMainPicture");
+const UploadMainPicture = require("./apis/UploadMainPicture");
+const UploadThumbnailPicture = require("./apis/UploadThumbnailPicture");
+const UploadEncodedPicture = require("./apis/UploadEncodedPicture");
 const IncreaseReduceLike = require("./IncreaseReduceLike");
-const EncodedImgUploaderRoutes = require("./EncodedPhotoToRepo");
-const UserImgUploaderRoutes = require("./UserImgUpload");
+const UploadUserPicture = require("./apis/UploadUserPicture");
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -49,6 +51,9 @@ const repoSizeRoutes = createRepoSizeRoutes({
 app.use(
   "/api",
   UploadMainPicture,
+  UploadThumbnailPicture,
+  UploadEncodedPicture,
+  UploadUserPicture,
   createUploaderRoutes,
   repoSizeRoutes,
   addDataRoutes,
@@ -59,9 +64,7 @@ app.use(
   UpdateView,
   UpdateDownload,
   PictureLike,
-  IncreaseReduceLike,
-  EncodedImgUploaderRoutes,
-  UserImgUploaderRoutes
+  IncreaseReduceLike
 );
 
 // Start the server
