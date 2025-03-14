@@ -56,18 +56,24 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
 
     // Sorting based on filter type
     if (filter === "recent") {
-      pictureData.sort(
-        (a, b) => new Date(b.uploadedTime) - new Date(a.uploadedTime)
-      );
+      pictureData.sort((a, b) => {
+        return new Date(b.uploadedTime || 0) - new Date(a.uploadedTime || 0);
+      });
     } else if (filter === "popular") {
-      pictureData.sort(
-        (a, b) =>
-          b.view - a.view || b.download - a.download || b.react - a.react
-      );
+      pictureData.sort((a, b) => {
+        const viewsA = a.view || 0;
+        const viewsB = b.view || 0;
+        const downloadsA = a.download || 0;
+        const downloadsB = b.download || 0;
+        const reactsA = a.react || 0;
+        const reactsB = b.react || 0;
+
+        return viewsB - viewsA || downloadsB - downloadsA || reactsB - reactsA;
+      });
     } else if (filter === "oldest") {
-      pictureData.sort(
-        (a, b) => new Date(a.uploadedTime) - new Date(b.uploadedTime)
-      );
+      pictureData.sort((a, b) => {
+        return new Date(a.uploadedTime || 0) - new Date(b.uploadedTime || 0);
+      });
     }
 
     // Apply pagination if limit is set
