@@ -59,18 +59,19 @@ const updateLikeCount = async (pictureId, increment) => {
     }
   );
 
-  return pictureData;
+  // Return only the updated picture object
+  return pictureData[pictureIndex];
 };
 
 // POST route to increase like count
 UpdateLike.post("/IncreaseLike/:id", async (req, res) => {
   try {
     const pictureId = req.params.id;
-    const updatedData = await updateLikeCount(pictureId, 1);
+    const updatedPicture = await updateLikeCount(pictureId, 1);
     res.status(200).json({
       success: true,
       message: "Like count increased successfully",
-      updatedData,
+      updatedData: updatedPicture, // Return only the updated picture
     });
   } catch (error) {
     console.error("Error increasing like count:", error.message);
@@ -82,11 +83,11 @@ UpdateLike.post("/IncreaseLike/:id", async (req, res) => {
 UpdateLike.delete("/DecreaseLike/:id", async (req, res) => {
   try {
     const pictureId = req.params.id;
-    const updatedData = await updateLikeCount(pictureId, -1);
+    const updatedPicture = await updateLikeCount(pictureId, -1);
     res.status(200).json({
       success: true,
       message: "Like count decreased successfully",
-      updatedData,
+      updatedData: updatedPicture, // Return only the updated picture
     });
   } catch (error) {
     console.error("Error decreasing like count:", error.message);

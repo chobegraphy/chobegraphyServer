@@ -30,7 +30,7 @@ const GetSuggestionData = require("./apis/DataRelated/GetSuggestionData");
 const GetUserCount = require("./apis/DataRelated/GetUserCount");
 const PictureLikeGetDelete = require("./apis/DataRelated/PictureLikeGetDelete");
 //
-const IncreaseReduceLike = require("./IncreaseReduceLike");
+const IncreaseDecreasePictureLike = require("./apis/DataRelated/IncreaseDecreasePictureLike");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -72,6 +72,7 @@ app.use(
   GetSuggestionData,
   GetUserCount,
   PictureLikeGetDelete,
+  IncreaseDecreasePictureLike,
   //
   createUploaderRoutes,
   repoSizeRoutes,
@@ -81,9 +82,7 @@ app.use(
   SinglePictureImgDetails,
   Suggestions,
   UpdateView,
-  UpdateDownload,
-
-  IncreaseReduceLike
+  UpdateDownload
 );
 
 // Start the server
