@@ -68,7 +68,7 @@ async function findAvailableRepoName() {
 }
 
 // POST route to add a liked picture for a user
-PictureLike.post("/LikePicture", async (req, res) => {
+PictureLike.post("/picture-like", async (req, res) => {
   try {
     const { UserId, PictureId } = req.body;
 
@@ -148,9 +148,6 @@ PictureLike.post("/LikePicture", async (req, res) => {
     res.status(500).json({ error: "Failed to like picture" });
   }
 });
-
-// GET route to fetch liked pictures for a user
-// GET route to fetch liked pictures for a user
 PictureLike.get("/LikedPictures/:userId", async (req, res) => {
   try {
     const userId = req.params.userId;

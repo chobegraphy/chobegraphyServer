@@ -14,13 +14,23 @@ const Suggestions = require("./Suggestions");
 require("dotenv").config();
 const UpdateView = require("./UpdateViewCount");
 const UpdateDownload = require("./UpdateDownloadCount");
-const PictureLike = require("./PictureLikeGetDelete");
-const UploadMainPicture = require("./apis/UploadMainPicture");
-const UploadThumbnailPicture = require("./apis/UploadThumbnailPicture");
-const UploadEncodedPicture = require("./apis/UploadEncodedPicture");
-const IncreaseReduceLike = require("./IncreaseReduceLike");
-const UploadUserPicture = require("./apis/UploadUserPicture");
 
+// file related
+const UploadMainPicture = require("./apis/FileRelated/UploadMainPicture");
+const UploadThumbnailPicture = require("./apis/FileRelated/UploadThumbnailPicture");
+const UploadEncodedPicture = require("./apis/FileRelated/UploadEncodedPicture");
+const UploadUserPicture = require("./apis/FileRelated/UploadUserPicture");
+// data related
+const AddNewCollection = require("./apis/DataRelated/AddNewCollection");
+const AddUploadPictureData = require("./apis/DataRelated/AddUploadPictureData");
+const GetCollectionsData = require("./apis/DataRelated/GetCollectionsData");
+const GetImgCount = require("./apis/DataRelated/GetImgCount");
+const GetPictureData = require("./apis/DataRelated/GetPictureData");
+const GetSuggestionData = require("./apis/DataRelated/GetSuggestionData");
+const GetUserCount = require("./apis/DataRelated/GetUserCount");
+const PictureLikeGetDelete = require("./apis/DataRelated/PictureLikeGetDelete");
+//
+const IncreaseReduceLike = require("./IncreaseReduceLike");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -54,6 +64,15 @@ app.use(
   UploadThumbnailPicture,
   UploadEncodedPicture,
   UploadUserPicture,
+  AddNewCollection,
+  AddUploadPictureData,
+  GetCollectionsData,
+  GetImgCount,
+  GetPictureData,
+  GetSuggestionData,
+  GetUserCount,
+  PictureLikeGetDelete,
+  //
   createUploaderRoutes,
   repoSizeRoutes,
   addDataRoutes,
@@ -63,7 +82,7 @@ app.use(
   Suggestions,
   UpdateView,
   UpdateDownload,
-  PictureLike,
+
   IncreaseReduceLike
 );
 
