@@ -64,7 +64,10 @@ UserDataRouter.post("/add-user", async (req, res) => {
     // Check if user already exists
     const existingUser = userData.find((user) => user.email === newUser.email);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(200).json({
+        message: "User already exists",
+        data: existingUser,
+      });
     }
 
     // Assign a MongoDB-like ID
