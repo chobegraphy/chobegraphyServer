@@ -33,6 +33,7 @@ const GetPictureDataByEmail = require("./apis/DataRelated/GetDataByEmail");
 
 const TeamGetPictureDataByStatus = require("./apis/DataRelated/TeamGetDataByStatus");
 const TeamApprovePicture = require("./apis/DataRelated/TeamApprovePicture");
+const TeamRejectPicture = require("./apis/DataRelated/TeamRejectPicture");
 //
 const IncreaseDecreasePictureLike = require("./apis/DataRelated/IncreaseDecreasePictureLike");
 const app = express();
@@ -80,6 +81,7 @@ app.use(
   GetPictureDataByEmail,
   TeamGetPictureDataByStatus,
   TeamApprovePicture,
+  TeamRejectPicture,
   //
   createUploaderRoutes,
   repoSizeRoutes,
