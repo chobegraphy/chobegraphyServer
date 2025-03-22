@@ -17,7 +17,9 @@ const UpdateDownload = require("./UpdateDownloadCount");
 
 // file related
 const UploadMainPicture = require("./apis/FileRelated/UploadMainPicture");
+const UpdateMainPicture = require("./apis/FileRelated/UpdateMainPicture");
 const UploadThumbnailPicture = require("./apis/FileRelated/UploadThumbnailPicture");
+const UpdateThumbnailPicture = require("./apis/FileRelated/UpdateThumbnailPicture");
 const UploadEncodedPicture = require("./apis/FileRelated/UploadEncodedPicture");
 const UploadUserPicture = require("./apis/FileRelated/UploadUserPicture");
 const UpdateEncodedPicture = require("./apis/FileRelated/UpdateEncodedPicture");
@@ -67,7 +69,9 @@ const repoSizeRoutes = createRepoSizeRoutes({
 app.use(
   "/api",
   UploadMainPicture,
+  UpdateMainPicture,
   UploadThumbnailPicture,
+  UpdateThumbnailPicture,
   UploadEncodedPicture,
   UpdateEncodedPicture,
   UploadUserPicture,
