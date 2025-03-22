@@ -34,8 +34,8 @@ async function fetchRepositories() {
   }
 }
 
-// Function to fetch approved image count from PictureApi.json
-async function fetchApprovedImageCount(repoName) {
+// Function to fetch image count from PictureApi.json
+async function fetchImageCount(repoName) {
   try {
     const response = await axios.get(
       `https://api.github.com/repos/${GITHUB_USERNAME}/${repoName}/contents/PictureApi.json`,
@@ -48,7 +48,9 @@ async function fetchApprovedImageCount(repoName) {
     );
 
     const fileData = Array.isArray(response.data) ? response.data : [];
-    return fileData.filter((image) => image.status === "approved").length;
+    const newData = fileData.filter((image) => image.status === "approved");
+
+    return newData.length;
   } catch (error) {
     console.error(
       `Error fetching PictureApi.json from ${repoName}:`,
@@ -58,18 +60,18 @@ async function fetchApprovedImageCount(repoName) {
   }
 }
 
-// GET route to count approved images across repositories
+// GET route to count images across repositories
 GetImgCount.get("/get-img-count", async (req, res) => {
   try {
     const repos = await fetchRepositories();
-    let totalApprovedCount = 0;
+    let totalDataCount = 0;
 
-    // Fetch approved image count from each filtered repo
+    // Fetch image count from each filtered repo
     for (const repo of repos) {
-      totalApprovedCount += await fetchApprovedImageCount(repo.name);
+      totalDataCount += await fetchImageCount(repo.name);
     }
 
-    res.status(200).json({ totalApprovedCount });
+    res.status(200).json({ totalDataCount });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
