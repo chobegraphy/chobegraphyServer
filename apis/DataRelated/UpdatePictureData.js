@@ -46,6 +46,7 @@ const getFileContent = async (repo) => {
 };
 
 // Update endpoint
+// Update endpoint
 UpdatePictureData.patch("/update-picture-data", async (req, res) => {
   try {
     const { _id, ...newData } = req.body;
@@ -61,7 +62,12 @@ UpdatePictureData.patch("/update-picture-data", async (req, res) => {
         const index = content.findIndex((item) => item._id === _id);
 
         if (index !== -1) {
-          content[index] = { ...content[index], ...newData };
+          // Remove the existing data matching _id
+          content.splice(index, 1);
+
+          // Add the new data
+          content.push({ _id, ...newData });
+
           const updatedContent = Buffer.from(
             JSON.stringify(content, null, 2)
           ).toString("base64");
