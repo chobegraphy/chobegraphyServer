@@ -45,9 +45,6 @@ const getFileContent = async (repo) => {
   }
 };
 
-// Update endpoint
-// Update endpoint
-// Update endpoint
 UpdatePictureData.patch("/update-picture-data", async (req, res) => {
   try {
     const { _id, ...newData } = req.body;
@@ -60,44 +57,27 @@ UpdatePictureData.patch("/update-picture-data", async (req, res) => {
       const fileData = await getFileContent(repo);
       if (fileData) {
         const { sha, content } = fileData;
-        const index = content.findIndex((item) => item._id === _id);
 
-        if (index !== -1) {
-          // Remove the existing data matching _id
-          content.splice(index, 1);
+        // Filter out any picture data that doesn't match the given _id
+        const filteredContent = content.filter((item) => item._id === _id);
 
-          // Add the new data in the given format
-          content.push({
-            _id, // use the provided _id
-            name: newData.name,
-            url: newData.url,
-            description: newData.description,
-            thumbnail: newData.thumbnail,
-            encodedUrl: newData.encodedUrl,
-            dimensions: newData.dimensions,
-            fileSize: newData.fileSize,
-            colors: newData.colors,
-            author: newData.author,
-            district: newData.district,
-            exifData: newData.exifData,
-            uploadedTime: newData.uploadedTime,
-            status: newData.status,
-            copyright: newData.copyright,
-            collections: newData.collections,
-            view: newData.view,
-            download: newData.download,
-            react: newData.react,
-          });
+        if (filteredContent.length > 0) {
+          // Update the existing entry with newData
+          const updatedContent = content.map((item) =>
+            item._id === _id ? { ...item, ...newData } : item
+          );
 
-          const updatedContent = Buffer.from(
-            JSON.stringify(content, null, 2)
+          // Convert the updated content to base64
+          const updatedBase64Content = Buffer.from(
+            JSON.stringify(updatedContent, null, 2)
           ).toString("base64");
 
+          // Push the updated content to GitHub
           await axios.put(
             `https://api.github.com/repos/${OWNER}/${repo}/contents/${FILE_PATH}`,
             {
               message: `Update picture data for _id: ${_id}`,
-              content: updatedContent,
+              content: updatedBase64Content,
               sha,
             },
             { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
