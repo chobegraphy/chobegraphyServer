@@ -26,6 +26,7 @@ const UpdateEncodedPicture = require("./apis/FileRelated/UpdateEncodedPicture");
 // data related
 const AddNewCollection = require("./apis/DataRelated/AddNewCollection");
 const AddUploadPictureData = require("./apis/DataRelated/AddUploadPictureData");
+const UpdatePictureData = require("./apis/DataRelated/UpdatePictureData");
 const GetCollectionsData = require("./apis/DataRelated/GetCollectionsData");
 const GetImgCount = require("./apis/DataRelated/GetImgCount");
 const GetPictureData = require("./apis/DataRelated/GetPictureData");
@@ -77,6 +78,7 @@ app.use(
   UploadUserPicture,
   AddNewCollection,
   AddUploadPictureData,
+  UpdatePictureData,
   GetCollectionsData,
   GetImgCount,
   GetPictureData,
