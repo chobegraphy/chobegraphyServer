@@ -59,6 +59,9 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
       }
     }
 
+    // Filter only approved images
+    allImages = allImages.filter((image) => image.status === "approved");
+
     // Sorting logic
     switch (filter) {
       case "popular":
