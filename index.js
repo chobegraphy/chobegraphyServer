@@ -30,6 +30,8 @@ const GetSuggestionData = require("./apis/DataRelated/GetSuggestionData");
 const GetUserCount = require("./apis/DataRelated/GetUserCount");
 const PictureLikeGetDelete = require("./apis/DataRelated/PictureLikeGetDelete");
 const GetPictureDataByEmail = require("./apis/DataRelated/GetDataByEmail");
+
+const TeamGetPictureDataByStatus = require("./apis/DataRelated/TeamGetDataByStatus");
 //
 const IncreaseDecreasePictureLike = require("./apis/DataRelated/IncreaseDecreasePictureLike");
 const app = express();
@@ -75,6 +77,7 @@ app.use(
   PictureLikeGetDelete,
   IncreaseDecreasePictureLike,
   GetPictureDataByEmail,
+  TeamGetPictureDataByStatus,
   //
   createUploaderRoutes,
   repoSizeRoutes,
