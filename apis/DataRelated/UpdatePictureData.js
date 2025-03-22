@@ -63,7 +63,7 @@ UpdatePictureData.patch("/update-picture-data", async (req, res) => {
 
         if (filteredContent.length > 0) {
           // Update the existing entry with newData
-          const updatedContent = [...filteredContent, newData];
+          const updatedContent = [...filteredContent, { _id, ...newData }];
 
           // Convert the updated content to base64
           const updatedBase64Content = Buffer.from(
