@@ -32,6 +32,7 @@ const PictureLikeGetDelete = require("./apis/DataRelated/PictureLikeGetDelete");
 const GetPictureDataByEmail = require("./apis/DataRelated/GetDataByEmail");
 
 const TeamGetPictureDataByStatus = require("./apis/DataRelated/TeamGetDataByStatus");
+const TeamApprovePicture = require("./apis/DataRelated/TeamApprovePicture");
 //
 const IncreaseDecreasePictureLike = require("./apis/DataRelated/IncreaseDecreasePictureLike");
 const app = express();
@@ -78,6 +79,7 @@ app.use(
   IncreaseDecreasePictureLike,
   GetPictureDataByEmail,
   TeamGetPictureDataByStatus,
+  TeamApprovePicture,
   //
   createUploaderRoutes,
   repoSizeRoutes,
