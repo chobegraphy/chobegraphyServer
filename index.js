@@ -20,6 +20,7 @@ const UploadMainPicture = require("./apis/FileRelated/UploadMainPicture");
 const UploadThumbnailPicture = require("./apis/FileRelated/UploadThumbnailPicture");
 const UploadEncodedPicture = require("./apis/FileRelated/UploadEncodedPicture");
 const UploadUserPicture = require("./apis/FileRelated/UploadUserPicture");
+const UpdateEncodedPicture = require("./apis/FileRelated/UpdateEncodedPicture");
 // data related
 const AddNewCollection = require("./apis/DataRelated/AddNewCollection");
 const AddUploadPictureData = require("./apis/DataRelated/AddUploadPictureData");
@@ -68,6 +69,7 @@ app.use(
   UploadMainPicture,
   UploadThumbnailPicture,
   UploadEncodedPicture,
+  UpdateEncodedPicture,
   UploadUserPicture,
   AddNewCollection,
   AddUploadPictureData,
