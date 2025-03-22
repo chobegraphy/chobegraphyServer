@@ -47,7 +47,7 @@ const getFileContent = async (repo) => {
 
 UpdatePictureData.patch("/update-picture-data", async (req, res) => {
   try {
-    const { _id, ...newData } = req.body;
+    const { _id, newData } = req.body;
     if (!_id) {
       return res.status(400).json({ error: "_id is required" });
     }
@@ -59,13 +59,11 @@ UpdatePictureData.patch("/update-picture-data", async (req, res) => {
         const { sha, content } = fileData;
 
         // Filter out any picture data that doesn't match the given _id
-        const filteredContent = content.filter((item) => item._id === _id);
+        const filteredContent = content.filter((item) => item._id !== _id);
 
         if (filteredContent.length > 0) {
           // Update the existing entry with newData
-          const updatedContent = content.map((item) =>
-            item._id === _id ? { ...item, ...newData } : item
-          );
+          const updatedContent = [...filteredContent, newData];
 
           // Convert the updated content to base64
           const updatedBase64Content = Buffer.from(
