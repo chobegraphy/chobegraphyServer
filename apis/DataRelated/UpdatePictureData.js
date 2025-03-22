@@ -47,6 +47,7 @@ const getFileContent = async (repo) => {
 
 // Update endpoint
 // Update endpoint
+// Update endpoint
 UpdatePictureData.patch("/update-picture-data", async (req, res) => {
   try {
     const { _id, ...newData } = req.body;
@@ -65,8 +66,28 @@ UpdatePictureData.patch("/update-picture-data", async (req, res) => {
           // Remove the existing data matching _id
           content.splice(index, 1);
 
-          // Add the new data
-          content.push({ _id, ...newData });
+          // Add the new data in the given format
+          content.push({
+            _id, // use the provided _id
+            name: newData.name,
+            url: newData.url,
+            description: newData.description,
+            thumbnail: newData.thumbnail,
+            encodedUrl: newData.encodedUrl,
+            dimensions: newData.dimensions,
+            fileSize: newData.fileSize,
+            colors: newData.colors,
+            author: newData.author,
+            district: newData.district,
+            exifData: newData.exifData,
+            uploadedTime: newData.uploadedTime,
+            status: newData.status,
+            copyright: newData.copyright,
+            collections: newData.collections,
+            view: newData.view,
+            download: newData.download,
+            react: newData.react,
+          });
 
           const updatedContent = Buffer.from(
             JSON.stringify(content, null, 2)

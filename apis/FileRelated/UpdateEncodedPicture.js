@@ -42,76 +42,72 @@ const getFileSha = async (repoName, filename) => {
 };
 
 // Patch endpoint to update an existing file
-// Update endpoint
-UpdatePictureData.patch("/update-picture-data", async (req, res) => {
-  try {
-    const { _id, ...newData } = req.body;
-    if (!_id) {
-      return res.status(400).json({ error: "_id is required" });
-    }
+UpdateEncodedPicture.patch(
+  "/update-encoded-picture",
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      let photo, filename;
 
-    const repos = await getAllPictureRepos();
-    for (const repo of repos) {
-      const fileData = await getFileContent(repo);
-      if (fileData) {
-        const { sha, content } = fileData;
-        const index = content.findIndex((item) => item._id === _id);
-
-        if (index !== -1) {
-          // Remove the existing data matching _id
-          content.splice(index, 1);
-
-          // Add the new data in the given format
-          content.push({
-            _id, // use the provided _id
-            name: newData.name,
-            url: newData.url,
-            description: newData.description,
-            thumbnail: newData.thumbnail,
-            encodedUrl: newData.encodedUrl,
-            dimensions: newData.dimensions,
-            fileSize: newData.fileSize,
-            colors: newData.colors,
-            author: newData.author,
-            district: newData.district,
-            exifData: newData.exifData,
-            uploadedTime: newData.uploadedTime,
-            status: newData.status,
-            copyright: newData.copyright,
-            collections: newData.collections,
-            view: newData.view,
-            download: newData.download,
-            react: newData.react,
-          });
-
-          const updatedContent = Buffer.from(
-            JSON.stringify(content, null, 2)
-          ).toString("base64");
-
-          await axios.put(
-            `https://api.github.com/repos/${OWNER}/${repo}/contents/${FILE_PATH}`,
-            {
-              message: `Update picture data for _id: ${_id}`,
-              content: updatedContent,
-              sha,
-            },
-            { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
-          );
-
-          return res
-            .status(200)
-            .json({ message: "Picture data updated successfully" });
-        }
+      if (req.is("application/json")) {
+        photo = req.body.photo;
+        filename = req.body.filename;
+      } else if (req.file) {
+        filename = req.body.filename || req.file.originalname;
+        photo = req.file.buffer.toString("base64");
+      } else {
+        return res.status(400).json({ error: "Unsupported content type" });
       }
-    }
 
-    res.status(404).json({ error: "Picture with given _id not found" });
-  } catch (error) {
-    console.error("Error updating picture data:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      if (!filename) {
+        return res.status(400).json({ error: "Filename is required" });
+      }
+
+      // Get all repositories matching the base name
+      const repositories = await listRepos();
+      let fileData = null;
+
+      // Search for the file in all repositories
+      for (const repo of repositories) {
+        fileData = await getFileSha(repo, filename);
+        if (fileData) break;
+      }
+
+      if (!fileData) {
+        return res
+          .status(404)
+          .json({ error: "File not found in any repository" });
+      }
+
+      const { sha, repoName } = fileData;
+
+      // Upload the updated file to GitHub
+      const uploadUrl = `https://api.github.com/repos/${OWNER}/${repoName}/contents/${filename}`;
+      await axios.put(
+        uploadUrl,
+        {
+          message: `Update ${filename}`,
+          content: photo,
+          sha: sha, // Required for updating an existing file
+        },
+        {
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${repoName}/main/${filename}`;
+
+      res.status(200).json({ message: "File updated successfully", imageUrl });
+    } catch (error) {
+      console.error("Error updating file:", error);
+      res
+        .status(500)
+        .json({ message: "Internal server error", error: error.message });
+    }
   }
-});
+);
 
 module.exports = UpdateEncodedPicture;
