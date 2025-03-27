@@ -83,7 +83,10 @@ UpdateUserData.patch("/update-user-data", async (req, res) => {
 
           return res
             .status(200)
-            .json({ message: "Picture data updated successfully" });
+            .json({
+              message: "User data updated successfully",
+              updatedData: { _id, ...newData },
+            });
         }
       }
     }
