@@ -40,6 +40,7 @@ const TeamApprovePicture = require("./apis/DataRelated/TeamApprovePicture");
 const TeamRejectPicture = require("./apis/DataRelated/TeamRejectPicture");
 const GetTeamMembers = require("./apis/DataRelated/GetTeamMembers");
 const GetPictureDataByEmailForProfile = require("./apis/DataRelated/GetPictureDataForProfile");
+const UpdateUserData = require("./apis/DataRelated/UpdateUserData");
 //
 const IncreaseDecreasePictureLike = require("./apis/DataRelated/IncreaseDecreasePictureLike");
 const app = express();
@@ -94,6 +95,7 @@ app.use(
   TeamRejectPicture,
   GetTeamMembers,
   GetPictureDataByEmailForProfile,
+  UpdateUserData,
   //
   createUploaderRoutes,
   repoSizeRoutes,
