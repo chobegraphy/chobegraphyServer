@@ -14,7 +14,7 @@ const FILE_PATH = "UserData.json";
 const JWT_SECRET = process.env.DB_KEY || "your_secret_key"; // Secret key for signing JWT
 
 // GET single user
-GetSingleUser.get("/get-user", async (req, res) => {
+GetSingleUser.get("/get-single-user", async (req, res) => {
   const email = req.query.email;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
@@ -44,20 +44,6 @@ GetSingleUser.get("/get-user", async (req, res) => {
     console.error("Error fetching user data:", error);
     res.status(500).json({ error: "Failed to fetch user data" });
   }
-});
-
-GetSingleUser.post("/jwt", (req, res) => {
-  console.log(req.body);
-  const user = req.body;
-  if (!user.email) {
-    return res.status(400).send({ message: "Email is required" });
-  }
-
-  // Generate a token without expiration
-  const token = jwt.sign(user, JWT_SECRET);
-
-  console.log(token);
-  res.status(200).send(token);
 });
 
 module.exports = GetSingleUser;
