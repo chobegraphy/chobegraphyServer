@@ -5,6 +5,7 @@ const GetSuggestionData = express.Router();
 // Function to fetch suggestion data
 const getSuggestionData = async (req, res) => {
   const { collections } = req.query;
+
   if (!collections) {
     return res.status(400).json({ message: "Collections array is required" });
   }
@@ -26,6 +27,7 @@ const getSuggestionData = async (req, res) => {
   let allPictures = [];
 
   try {
+    // Fetch all user repositories
     const repoResponse = await fetch(
       "https://api.github.com/user/repos?per_page=100&type=all",
       {
@@ -37,6 +39,7 @@ const getSuggestionData = async (req, res) => {
     );
 
     const repos = await repoResponse.json();
+
     if (!Array.isArray(repos)) {
       return res.status(500).json({
         message: "Error fetching repositories",
@@ -44,12 +47,14 @@ const getSuggestionData = async (req, res) => {
       });
     }
 
+    // Filter repos that match your pattern
     const filteredRepos = repos.filter(
       (repo) =>
         repo.name.startsWith(REPO_PREFIX) &&
         !isNaN(repo.name.replace(REPO_PREFIX, ""))
     );
 
+    // Fetch image data from each repo
     for (const repo of filteredRepos) {
       const fileResponse = await fetch(
         `https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/contents/PictureApi.json`,
@@ -69,9 +74,10 @@ const getSuggestionData = async (req, res) => {
       }
     }
 
+    // Filter and collect images matching any of the requested collections
     let matchedImages = new Map();
     collectionsParsed.forEach((collection) => {
-      let filtered = allPictures.filter((image) =>
+      const filtered = allPictures.filter((image) =>
         image.collections.some(
           (col) =>
             col.label === collection.label || col.value === collection.value
@@ -85,7 +91,13 @@ const getSuggestionData = async (req, res) => {
       });
     });
 
+    // Convert to array and apply filters
     let uniqueImages = Array.from(matchedImages.values());
+
+    // ✅ Only include images with status: "approved"
+    uniqueImages = uniqueImages.filter((image) => image.status === "approved");
+
+    // Optional: Shuffle the result
     uniqueImages = uniqueImages.sort(() => Math.random() - 0.5);
 
     return res.status(200).json(uniqueImages);
