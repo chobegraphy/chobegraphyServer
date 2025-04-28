@@ -10,6 +10,11 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy";
 const BASE_REPO_NAME = "ThumbnailStorage";
 
+// Helper function to sanitize filenames
+function sanitizeFileName(filename) {
+  return filename.replace(/[\/\\]/g, "-"); // Replace both slashes with dashes
+}
+
 // Function to get repository size
 const getRepoSize = async (repoName) => {
   try {
@@ -81,6 +86,9 @@ UploadThumbnailPicture.post(
         return res.status(400).json({ error: "File size exceeds 30MB limit" });
       }
 
+      // Sanitize filename before anything else
+      filename = sanitizeFileName(filename);
+
       // Select the repository
       let currentRepo = BASE_REPO_NAME;
       let repoSize = await getRepoSize(currentRepo);
@@ -104,6 +112,7 @@ UploadThumbnailPicture.post(
         const fileExtension = filename.split(".").pop();
         const baseName = filename.replace(`.${fileExtension}`, "");
         finalFilename = `${baseName}-${Date.now()}.${fileExtension}`;
+        finalFilename = sanitizeFileName(finalFilename); // sanitize again
       }
 
       // Upload the file to GitHub
@@ -119,10 +128,13 @@ UploadThumbnailPicture.post(
         }
       );
 
-      // Image URL from GitHub
-      const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
+      // Generate the image URL
+      const rawImageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
 
-      res.status(200).json({ imageUrl });
+      // Optional: URL-encode final link for Bengali, emoji safety
+      const safeImageUrl = encodeURI(rawImageUrl);
+
+      res.status(200).json({ imageUrl: safeImageUrl });
     } catch (error) {
       console.error("Error uploading file:", error);
       res

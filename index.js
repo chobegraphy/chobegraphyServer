@@ -24,6 +24,7 @@ const UploadEncodedPicture = require("./apis/FileRelated/UploadEncodedPicture");
 const UploadUserPicture = require("./apis/FileRelated/UploadUserPicture");
 const UpdateEncodedPicture = require("./apis/FileRelated/UpdateEncodedPicture");
 // data related
+const GetFixedLink = require("./apis/DataRelated/GetFixedLink");
 const AddNewCollection = require("./apis/DataRelated/AddNewCollection");
 const AddUploadPictureData = require("./apis/DataRelated/AddUploadPictureData");
 const UpdatePictureData = require("./apis/DataRelated/UpdatePictureData");
@@ -98,6 +99,7 @@ app.use(
   GetPictureDataByEmailForProfile,
   UpdateUserData,
   GetSingleUser,
+  GetFixedLink,
   //
   createUploaderRoutes,
   repoSizeRoutes,

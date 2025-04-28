@@ -10,6 +10,11 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const OWNER = "chobegraphy";
 const BASE_REPO_NAME = "EncodedStorage";
 
+// Helper function to sanitize filenames
+function sanitizeFileName(filename) {
+  return filename.replace(/[\/\\]/g, "-"); // Replace any slashes with dash
+}
+
 // Function to get repository size
 const getRepoSize = async (repoName) => {
   try {
@@ -81,6 +86,9 @@ UploadEncodedPicture.post(
         return res.status(400).json({ error: "File size exceeds 30MB limit" });
       }
 
+      // Sanitize filename
+      filename = sanitizeFileName(filename);
+
       // Select the repository
       let currentRepo = BASE_REPO_NAME;
       let repoSize = await getRepoSize(currentRepo);
@@ -104,6 +112,7 @@ UploadEncodedPicture.post(
         const fileExtension = filename.split(".").pop();
         const baseName = filename.replace(`.${fileExtension}`, "");
         finalFilename = `${baseName}-${Date.now()}.${fileExtension}`;
+        finalFilename = sanitizeFileName(finalFilename); // sanitize again
       }
 
       // Upload the file to GitHub
@@ -120,9 +129,12 @@ UploadEncodedPicture.post(
       );
 
       // Image URL from GitHub
-      const imageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
+      const rawImageUrl = `https://raw.githubusercontent.com/${OWNER}/${currentRepo}/main/${finalFilename}`;
 
-      res.status(200).json({ imageUrl });
+      // Safe URL for Bengali text, emoji filenames
+      const safeImageUrl = encodeURI(rawImageUrl);
+
+      res.status(200).json({ imageUrl: safeImageUrl });
     } catch (error) {
       console.error("Error uploading file:", error);
       res
