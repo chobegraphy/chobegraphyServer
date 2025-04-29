@@ -35,6 +35,7 @@ const GetSuggestionData = require("./apis/DataRelated/GetSuggestionData");
 const GetUserCount = require("./apis/DataRelated/GetUserCount");
 const PictureLikeGetDelete = require("./apis/DataRelated/PictureLikeGetDelete");
 const GetPictureDataByEmail = require("./apis/DataRelated/GetDataByEmail");
+const GetPictureStatusCount = require("./apis/DataRelated/GetPictureStatusCount");
 
 const TeamGetPictureDataByStatus = require("./apis/DataRelated/TeamGetDataByStatus");
 const TeamApprovePicture = require("./apis/DataRelated/TeamApprovePicture");
@@ -100,6 +101,7 @@ app.use(
   UpdateUserData,
   GetSingleUser,
   GetFixedLink,
+  GetPictureStatusCount,
   //
   createUploaderRoutes,
   repoSizeRoutes,
