@@ -9,11 +9,15 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_PREFIX = "ChobegraphyPictureApi";
 
 GetPictureData.get("/get-picture-data", async (req, res) => {
-  const { filter = "popular", limit = 10, page = 1 } = req.query;
+  const {
+    filter = "popular",
+    limit = 10,
+    page = 1,
+    collection = "all",
+  } = req.query;
   let allImages = [];
 
   try {
-    // Fetch all repositories
     const repoResponse = await fetch(
       `https://api.github.com/user/repos?per_page=100&type=all`,
       {
@@ -32,14 +36,12 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
         .json({ message: "Error fetching repositories", error: repos });
     }
 
-    // Filter repositories that match "ChobegraphyPictureApi-*" pattern
     const filteredRepos = repos.filter(
       (repo) =>
         repo.name.startsWith(REPO_PREFIX) &&
         !isNaN(repo.name.replace(REPO_PREFIX, ""))
     );
 
-    // Fetch PictureApi.json from each repo and combine data
     for (const repo of filteredRepos) {
       const fileResponse = await fetch(
         `https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/contents/PictureApi.json`,
@@ -59,10 +61,18 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
       }
     }
 
-    // Filter only approved images
     allImages = allImages.filter((image) => image.status === "approved");
 
-    // Sorting logic
+    // Filter by collection label if not "all"
+    if (collection !== "all") {
+      const collectionLower = collection.toLowerCase();
+      allImages = allImages.filter((image) => {
+        return image.collections?.some(
+          (col) => col.label?.toLowerCase() === collectionLower
+        );
+      });
+    }
+
     switch (filter) {
       case "popular":
         allImages.sort((a, b) => (b.view || 0) - (a.view || 0));
@@ -81,7 +91,6 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
         return res.status(400).json({ message: "Invalid filter type" });
     }
 
-    // Pagination logic
     const startIndex = (page - 1) * limit;
     const paginatedImages = allImages.slice(
       startIndex,
