@@ -15,6 +15,7 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
     page = 1,
     collection = "all",
   } = req.query;
+
   let allImages = [];
 
   try {
@@ -61,18 +62,20 @@ GetPictureData.get("/get-picture-data", async (req, res) => {
       }
     }
 
+    // Only approved
     allImages = allImages.filter((image) => image.status === "approved");
 
-    // Filter by collection label if not "all"
-    if (collection !== "all") {
+    // Case-insensitive filter by collection label
+    if (collection.toLowerCase() !== "all") {
       const collectionLower = collection.toLowerCase();
-      allImages = allImages.filter((image) => {
-        return image.collections?.some(
+      allImages = allImages.filter((image) =>
+        image.collections?.some(
           (col) => col.label?.toLowerCase() === collectionLower
-        );
-      });
+        )
+      );
     }
 
+    // Sorting logic
     switch (filter) {
       case "popular":
         allImages.sort((a, b) => (b.view || 0) - (a.view || 0));

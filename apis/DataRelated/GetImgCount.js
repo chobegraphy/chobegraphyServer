@@ -34,7 +34,7 @@ async function fetchRepositories() {
   }
 }
 
-// Function to fetch image count from PictureApi.json
+// Function to fetch image count from PictureApi.json// Function to fetch image count from PictureApi.json
 async function fetchImageCount(repoName, collectionLabel) {
   try {
     const response = await axios.get(
@@ -48,18 +48,18 @@ async function fetchImageCount(repoName, collectionLabel) {
     );
 
     const fileData = Array.isArray(response.data) ? response.data : [];
-
-    // Filter by approved status
     let approvedImages = fileData.filter(
       (image) => image.status === "approved"
     );
 
-    // Further filter by collection if provided
-    if (collectionLabel) {
+    if (collectionLabel && collectionLabel.toLowerCase() !== "all") {
+      const lowerCaseLabel = collectionLabel.toLowerCase();
       approvedImages = approvedImages.filter(
         (img) =>
           Array.isArray(img.collections) &&
-          img.collections.some((col) => col.label === collectionLabel)
+          img.collections.some(
+            (col) => col.label?.toLowerCase() === lowerCaseLabel
+          )
       );
     }
 
@@ -69,19 +69,18 @@ async function fetchImageCount(repoName, collectionLabel) {
       `Error fetching PictureApi.json from ${repoName}:`,
       error.response?.data || error.message
     );
-    return 0; // Return 0 if fetching fails
+    return 0;
   }
 }
 
 // GET route to count images across repositories
 GetImgCount.get("/get-img-count", async (req, res) => {
-  const { collection } = req.query;
+  const collection = req.query.collection || "all";
 
   try {
     const repos = await fetchRepositories();
     let totalDataCount = 0;
 
-    // Fetch image count from each filtered repo
     for (const repo of repos) {
       totalDataCount += await fetchImageCount(repo.name, collection);
     }
